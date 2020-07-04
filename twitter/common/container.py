@@ -4,6 +4,7 @@ from typing import TypeVar
 
 from twitter.common.event.dispatcher import EventDispatcher
 from twitter.common.event.event import Event
+from twitter.me.service.twit import TwitService
 
 
 T = TypeVar("T")
@@ -22,6 +23,7 @@ class DIContainer:
 
     def _compose(self) -> None:
         self.register(EventDispatcher())
+        self.register(TwitService())
 
         Event.inject_dispatcher(self.get(EventDispatcher))
 
