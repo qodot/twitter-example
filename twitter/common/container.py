@@ -2,6 +2,9 @@ from abc import abstractmethod
 from typing import Type
 from typing import TypeVar
 
+from twitter.common.event.dispatcher import EventDispatcher
+from twitter.common.event.event import Event
+
 
 T = TypeVar("T")
 
@@ -18,7 +21,9 @@ class DIContainer:
         pass
 
     def _compose(self) -> None:
-        pass
+        self.register(EventDispatcher())
+
+        Event.inject_dispatcher(self.get(EventDispatcher))
 
     def register(self, obj: T) -> None:
         type_ = type(obj)
