@@ -4,7 +4,11 @@ from typing import TypeVar
 
 from twitter.common.event.dispatcher import EventDispatcher
 from twitter.common.event.event import Event
+from twitter.common.event.twit import TwitCreated
+
 from twitter.me.service.twit import TwitService
+from twitter.timeline.handler.twit_created import TwitCreatedHandler
+from twitter.timeline.service.add_twit import AddTwitService
 
 
 T = TypeVar("T")
@@ -22,10 +26,28 @@ class DIContainer:
         pass
 
     def _compose(self) -> None:
+        # common context
         self.register(EventDispatcher())
+
+        # me context
         self.register(TwitService())
 
+        # timeline context
+        self.register(AddTwitService())
+        self.register(
+            TwitCreatedHandler(
+                TwitCreated,
+                self.get(AddTwitService)
+            )
+        )
+
+        # event dispatch map
         Event.inject_dispatcher(self.get(EventDispatcher))
+        event_dispatcher = self.get(EventDispatcher)
+        event_dispatcher.register(
+            TwitCreated,
+            self.get(TwitCreatedHandler)
+        )
 
     def register(self, obj: T) -> None:
         type_ = type(obj)
